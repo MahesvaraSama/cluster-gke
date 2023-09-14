@@ -80,3 +80,36 @@ module "gke" {
     },
   ]
 }
+
+resource "kubernetes_service" "nginx" {
+  metadata {
+    name = "terraform-nginx"
+  }
+  spec {
+    selector = {
+      app = kubernetes_pod.nginx.metadata.0.labels.app
+    }
+    port {
+      port        = 80
+      target_port = 80
+    }
+
+    type = "LoadBalancer"
+  }
+}
+
+resource "kubernetes_pod" "nginx" {
+  metadata {
+    name = "terraform-nginx"
+    labels = {
+      app = "MyApp"
+    }
+  }
+
+  spec {
+    container {
+      image = "nginx:latest"
+      name  = "nginx"
+    }
+  }
+}
